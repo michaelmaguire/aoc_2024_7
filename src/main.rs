@@ -8,8 +8,7 @@ fn read_file_to_lines(path: &str) -> io::Result<Vec<String>> {
     Ok(contents.lines().map(|line| line.to_string()).collect())
 }
 
-
-fn try_combinations_of_operations(expected: i32, operands: &[i32] ) -> i32 {
+fn try_combinations_of_operations(expected: u64, operands: &[u64]) -> usize {
     let mut count = 0;
     let n = operands.len();
     let total_combinations = 1 << n; // 2^n combinations
@@ -31,7 +30,7 @@ fn try_combinations_of_operations(expected: i32, operands: &[i32] ) -> i32 {
     count
 }
 
-fn parse_string(input: &str) -> Option<(i32, Vec<i32>)> {
+fn parse_string(input: &str) -> Option<(u64, Vec<u64>)> {
     let parts: Vec<&str> = input.split(':').collect();
     if parts.len() != 2 {
         return None;
@@ -40,10 +39,10 @@ fn parse_string(input: &str) -> Option<(i32, Vec<i32>)> {
     let first_part = parts[0].trim();
     let second_part = parts[1].trim();
 
-    let first_number = first_part.parse::<i32>().ok()?;
-    let numbers: Vec<i32> = second_part
+    let first_number = first_part.parse::<u64>().ok()?;
+    let numbers: Vec<u64> = second_part
         .split_whitespace()
-        .filter_map(|s| s.parse::<i32>().ok())
+        .filter_map(|s| s.parse::<u64>().ok())
         .collect();
 
     Some((first_number, numbers))
@@ -96,7 +95,6 @@ mod tests {
     }
 }
 
-
 fn main() {
     println!("Hello, aoc_2024_7!");
 
@@ -107,7 +105,7 @@ fn main() {
                 //println!("Line {}: {}", index + 1, line);
                 if let Some((expected, operands)) = parse_string(line) {
                     println!("Expected: {}, Operands: {:?}", expected, operands);
-                    let number_of_good_combinations = try_combinations_of_operations(expected, &operands, );
+                    let number_of_good_combinations = try_combinations_of_operations(expected, &operands);
                     println!("Number of good combinations: {}", number_of_good_combinations);
                     if number_of_good_combinations > 0 {
                         sum_good_test_values += expected;
@@ -116,10 +114,8 @@ fn main() {
                     println!("Failed to parse line: {}", line);
                 }
                 println!("sum_good_test_Values {sum_good_test_values}");
-
             }
         }
         Err(e) => println!("Error reading file: {}", e),
     }
-
 }
