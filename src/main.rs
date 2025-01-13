@@ -7,19 +7,31 @@ fn read_file_to_lines(path: &str) -> io::Result<Vec<String>> {
     file.read_to_string(&mut contents)?;
     Ok(contents.lines().map(|line| line.to_string()).collect())
 }
+enum Operation {
+    Add,
+    Multiply,
+    Concat,
+}
 
 fn try_combinations_of_operations(expected: u64, operands: &[u64]) -> usize {
     let mut count = 0;
     let n = operands.len();
-    let total_combinations = 1 << n; // 2^n combinations
+    let operations = vec![Operation::Add, Operation::Multiply, Operation::Concat];
+    let total_combinations = operations.len().pow((n - 1) as u32);
 
     for i in 0..total_combinations {
         let mut interim_result = operands[0];
+        let mut combination = i;
         for j in 1..n {
-            if (i & (1 << (j - 1))) != 0 {
-                interim_result += operands[j];
-            } else {
-                interim_result *= operands[j];
+            let operation = &operations[combination % operations.len()];
+            combination /= operations.len();
+            match operation {
+                Operation::Add => interim_result += operands[j],
+                Operation::Multiply => interim_result *= operands[j],
+                Operation::Concat => {
+                    let concat_str = format!("{}{}", interim_result, operands[j]);
+                    interim_result = concat_str.parse::<u64>().unwrap_or(0);
+                }
             }
         }
         if interim_result == expected {
