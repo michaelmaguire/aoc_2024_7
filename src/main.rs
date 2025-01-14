@@ -13,6 +13,20 @@ enum Operation {
     Concat,
 }
 
+// This works by trying all combinations of the 3 operations by counting from 0 to 3^(n-1)
+// where n is the number of operands, and looking at the digits of that number in base 3 
+// to determine which operation to use for each step. If base 3 digit is 0, use addition,
+// if 1, use multiplication, if 2, use concatenation.
+//
+// Expected: 13282106, Operands: [9, 7, 244, 864, 689, 9]
+// i:0 combination[0] 00000 = 1822
+// i:1 combination[1] 10000 = 1869
+// i:2 combination[2] 20000 = 1903
+// i:3 combination[3] 01000 = 5466
+// i:4 combination[4] 11000 = 16934
+// i:5 combination[5] 21000 = 25230
+// ...
+//
 fn try_combinations_of_operations(expected: u64, operands: &[u64]) -> usize {
     let mut count = 0;
     let n = operands.len();
@@ -22,23 +36,27 @@ fn try_combinations_of_operations(expected: u64, operands: &[u64]) -> usize {
     for i in 0..total_combinations {
         let mut interim_result = operands[0];
         let mut combination = i;
+        //print!("i:{i} combination[{combination}] ");
         for j in 1..n {
             let operation = &operations[combination % operations.len()];
             combination /= operations.len();
+            //print!(" combination[{combination}] ");
+            let jth_value = operands[j];
             match operation {
-                Operation::Add => interim_result += operands[j],
-                Operation::Multiply => interim_result *= operands[j],
+                Operation::Add => { interim_result += jth_value; /*print!("0");*/ },
+                Operation::Multiply => { interim_result *= jth_value; /*print!("1");*/ },
                 Operation::Concat => {
-                    let concat_str = format!("{}{}", interim_result, operands[j]);
+                    let concat_str = format!("{}{}", interim_result, jth_value);
                     interim_result = concat_str.parse::<u64>().unwrap_or(0);
-                }
+                    /*print!("2");*/
+                },
             }
         }
+        //println!("interim_result={interim_result}");
         if interim_result == expected {
             count += 1;
         }
     }
-
     count
 }
 
